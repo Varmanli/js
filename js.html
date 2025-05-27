@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>بررسی جامع جاوااسکریپت</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/night-owl.min.css"
+    />
+    <style>
+      body {
+        font-family: "Vazirmatn", sans-serif;
+        background-color: #121827; /* bg-gray-900 equivalent */
+        color: #f4f4f5; /* text-gray-100 equivalent */
+      }
+
+      #sidebar {
+        background-color: #1f2937; /* bg-gray-800 equivalent */
+        border-left: 1px solid #374151; /* border-gray-700 equivalent */
+      }
+
+      .nav-link {
+        color: #cbd5e1; /* text-gray-300 equivalent */
+      }
+
+      .nav-link:hover {
+        background-color: #3b82f6; /* blue-500 for hover */
+        color: #f0f9ff; /* blue-50 equivalent */
+      }
+
+      .content-section {
+        display: none;
+        padding: 30px;
+      }
+
+      .content-section.active {
+        display: block;
+      }
+
+      h2 {
+        color: #2dd4bf; /* text-teal-200 equivalent */
+      }
+
+      h3 {
+        color: #a7f3d0; /* text-green-200 equivalent */
+      }
+
+      a {
+        color: #67e8f9; /* text-cyan-200 equivalent */
+      }
+
+      a:hover {
+        color: #ccfbf1; /* text-teal-50 equivalent */
+      }
+
+      .timeline-item {
+        position: relative;
+        padding-bottom: 20px;
+        padding-left: 30px;
+        border-left: 2px solid #2dd4bf; /* teal-500 */
+      }
+
+      .timeline-item:last-child {
+        border-left: none;
+      }
+
+      .timeline-item::before {
+        content: "";
+        position: absolute;
+        left: -9px;
+        top: 0;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background-color: #2dd4bf; /* teal-500 */
+        border: 2px solid #121827; /* bg-gray-900 equivalent */
+      }
+
+      .chart-container {
+        background-color: #1f2937; /* bg-gray-800 equivalent */
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+
+      .tab-button {
+        color: #cbd5e1; /* text-gray-300 equivalent */
+        border-bottom-color: #3b82f6; /* blue-500 for active */
+      }
+
+      .tab-button.active {
+        color: #f9f7d9; /* yellow-100 for active text */
+      }
+
+      .tab-button:hover {
+        color: #f9f7d9; /* yellow-100 for hover */
+      }
+
+      .event-loop-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.5rem;
+        border: 1px solid #4b5563; /* border-gray-600 equivalent */
+        background-color: #374151; /* bg-gray-700 equivalent */
+        border-radius: 0.5rem;
+        width: fit-content;
+        margin: 1rem auto;
+      }
+
+      .event-loop-component {
+        background-color: #4a5568; /* bg-gray-600 equivalent */
+        color: #f3f4f6; /* text-gray-200 equivalent */
+        border: 1px solid #6b7280; /* border-gray-500 equivalent */
+        padding: 0.75rem 1.25rem;
+        border-radius: 0.375rem;
+        text-align: center;
+      }
+
+      .event-loop-arrow {
+        color: #2dd4bf; /* teal-500 */
+        font-size: 1.5rem;
+      }
+
+      .web-apis-event-loop-wrapper,
+      .queues-wrapper {
+        display: flex;
+        flex-direction: row;
+        gap: 1rem;
+        width: 100%;
+        justify-content: center; /* وسط افقی عناصر در ردیف */
+      }
+
+      @media (max-width: 640px) {
+        .web-apis-event-loop-wrapper,
+        .queues-wrapper {
+          flex-direction: column;
+          align-items: center;
+        }
+      }
+
+      .call-stack {
+        width: 150%;
+      }
+
+      pre {
+        background-color: #282c34 !important; /* Night Owl background */
+        color: #d19a66 !important; /* Night Owl base text */
+        border-color: #44475a !important;
+      }
+
+      pre code {
+        text-align: left !important;
+        direction: ltr !important; /* Ensure left-to-right for code */
+      }
+
+      code.hljs {
+        background: none !important;
+        color: #d19a66 !important;
+      }
+
+      .loading-indicator {
+        display: none;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        animation: spin 2s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900 text-gray-100">
+    <div class="flex flex-col md:flex-row min-h-screen">
+      <aside
+        id="sidebar"
+        class="bg-gray-800 text-gray-100 w-full md:w-64 p-4 space-y-2 fixed md:fixed inset-y-0 right-0 z-50 md:z-auto -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col items-center justify-start"
+      >
+        <h1
+          class="text-3xl font-extrabold text-yellow-400 mb-8 text-center tracking-wide border-b border-yellow-500 pb-2 w-full"
+        >
+          جاوااسکریپت
+        </h1>
+        <nav class="flex flex-col items-center w-full">
+          <a
+            href="#introduction"
+            class="block py-3 my-1 px-4 rounded transition duration-200 hover:bg-blue-500 hover:text-blue-50 nav-link w-full text-center"
+            >مقدمه</a
+          >
+          <a
+            href="#journey"
+            class="block py-3 my-1 px-4 rounded transition duration-200 hover:bg-blue-500 hover:text-blue-50 nav-link w-full text-center"
+            >سفر در زمان</a
+          >
+          <a
+            href="#architecture"
+            class="block py-3 my-1 px-4 rounded transition duration-200 hover:bg-blue-500 hover:text-blue-50 nav-link w-full text-center"
+            >معماری جاوااسکریپت</a
+          >
+          <a
+            href="#modern"
+            class="block py-3 my-1 px-4 rounded transition duration-200 hover:bg-blue-500 hover:text-blue-50 nav-link w-full text-center"
+            >قدرت مدرن</a
+          >
+          <a
+            href="#ecosystem"
+            class="block py-3 my-1 px-4 rounded transition duration-200 hover:bg-blue-500 hover:text-blue-50 nav-link w-full text-center"
+            >اکوسیستم و کاربردها</a
+          >
+          <a
+            href="#critique"
+            class="block py-3 my-1 px-4 rounded transition duration-200 hover:bg-blue-500 hover:text-blue-50 nav-link w-full text-center"
+            >نقد و بررسی و آینده</a
+          >
+        </nav>
+      </aside>
+
+      <button
+        id="menu-toggle"
+        class="md:hidden fixed top-4 right-4 z-50 p-2 bg-blue-600 text-white rounded-full shadow-lg"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="w-6 h-6"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+          />
+        </svg>
+      </button>
+
+      <main class="flex-1 p-6 md:pt-6 md:pr-64 bg-gray-900">
+        <section id="introduction" class="content-section active">
+          <h2
+            class="text-4xl font-extrabold text-teal-300 mb-2 border-r-4 border-teal-500 pr-4"
+          >
+            مقدمه: به دنیای جاوااسکریپت خوش آمدید
+          </h2>
+          <p class="text-sm text-gray-400 mb-6">
+            ارائه درس
+            <span class="text-teal-400 font-medium"
+              >طراحی زبان‌های برنامه‌نویسی</span
+            >
+            - استاد
+            <span class="font-semibold text-teal-200">دکتر محمدرضا افشاری</span>
+          </p>
+
+          <p class="mb-5 text-lg leading-relaxed text-gray-200">
+            سلام به شما علاقه‌مندان به دنیای برنامه‌نویسی! امروز می‌خواهیم سفری
+            هیجان‌انگیز را آغاز کنیم و به دل یکی از پرکاربردترین و محبوب‌ترین
+            زبان‌های برنامه‌نویسی دنیا برویم:
+            <span class="text-yellow-300 font-semibold">جاوااسکریپت</span>. شاید
+            فکر کنید جاوااسکریپت فقط برای ساخت وب‌سایت‌های تعاملی است، اما سخت
+            در اشتباهید! این زبان از یک ابزار ساده برای مرورگرها، به یک غول
+            همه‌فن‌حریف تبدیل شده که در هر گوشه از دنیای نرم‌افزار رد پایی از
+            خود به جا گذاشته است.
+          </p>
+
+          <p class="mb-5 text-lg leading-relaxed text-gray-200">
+            در این سفر، قدم به قدم با جاوااسکریپت آشنا می‌شویم: از روزهای اول
+            تولدش، تا ویژگی‌های جالب و گاهی عجیبش، کاربردهای بی‌شمارش و البته
+            نگاهی به آینده‌ای که در پیش دارد. پس کمربندها را ببندید که سفر آغاز
+            شد!
+          </p>
+
+          <p class="text-lg leading-relaxed text-gray-200">
+            با استفاده از منوی ناوبری، می‌توانید بخش‌های مختلف این گزارش تعاملی
+            را کاوش کنید و با جنبه‌های گوناگون جاوااسکریپت آشنا شوید.
+          </p>
+        </section>
+
+        <section id="journey" class="content-section">
+          <h2
+            class="text-4xl font-extrabold mb-6 text-teal-300 tracking-tight leading-snug"
+          >
+            سفر شگفت‌انگیز جاوااسکریپت: از ۱۰ روز تا امروز
+          </h2>
+          <p class="mb-8 text-lg leading-relaxed text-gray-200">
+            تصور کنید می‌خواهید در مدت زمانی
+            <span class="text-yellow-300 font-semibold">فوق‌العاده کوتاه</span>،
+            یک زبان برنامه‌نویسی جدید خلق کنید! این دقیقاً همان اتفاقی‌ست که
+            برای جاوااسکریپت افتاد. 🎯 <br /><br />
+            بیایید نگاهی بیندازیم به
+            <span class="font-medium text-teal-200">ریشه‌های تولد</span> آن در
+            شرکت نت‌اسکیپ به‌دست
+            <span class="text-teal-300 font-semibold">برندن ایچ</span>، تغییرات
+            نام‌گذاری، نقش حیاتی استاندارد
+            <span class="text-indigo-300 font-semibold">ECMAScript</span>، و
+            همچنین تأثیر شدید
+            <span class="text-orange-300 font-semibold">جنگ مرورگرها</span> بر
+            تکامل این زبان پویای دوست‌داشتنی. <br /><br />
+            هر نقطه عطف در این مسیر، جاوااسکریپت را یک گام به چیزی که امروز
+            می‌شناسیم نزدیک‌تر کرده است.
+          </p>
+          <div id="timelineContainer" class="space-y-8"></div>
+        </section>
+
+        <section id="architecture" class="content-section">
+          <h2 class="text-3xl font-bold mb-6 text-teal-200">
+            قلب جاوااسکریپت: نگاهی به اصول طراحی و فلسفه آن
+          </h2>
+          <p class="mb-8 text-lg leading-relaxed text-gray-200">
+            طراحی جاوااسکریپت، ترکیبی است از اهداف اولیه، الهام‌گیری از زبان‌های
+            دیگر و محدودیت‌های محیطی که به شکل‌گیری هویت چندوجهی آن منجر شده
+            است. این بخش به بررسی اصول کلیدی طراحی مانند سادگی، پویایی و
+            انعطاف‌پذیری، پارادایم‌های برنامه‌نویسی پشتیبانی شده (دستوری، شیءگرا
+            با وراثت پروتوتایپی، تابع‌گرا) و تأثیر محدودیت‌های مرورگر در طراحی
+            اولیه می‌پردازد.
+          </p>
+          <div class="mb-4 border-b border-gray-700">
+            <nav class="flex space-x-4 space-x-reverse" aria-label="Tabs">
+              <button
+                data-tab="dynamic-typing"
+                class="tab-button text-gray-300 hover:text-yellow-100 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-blue-500 active"
+              >
+                نوع‌بندی پویا
+              </button>
+              <button
+                data-tab="single-threaded"
+                class="tab-button text-gray-300 hover:text-yellow-100 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent"
+              >
+                اجرای تک‌نخی و ناهمگامی
+              </button>
+              <button
+                data-tab="first-class-functions"
+                class="tab-button text-gray-300 hover:text-yellow-100 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent"
+              >
+                توابع درجه اول و بستارها
+              </button>
+              <button
+                data-tab="prototypal-inheritance"
+                class="tab-button text-gray-300 hover:text-yellow-100 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm border-transparent"
+              >
+                وراثت پروتوتایپی
+              </button>
+            </nav>
+          </div>
+
+          <div
+            id="dynamic-typing"
+            class="tab-content active bg-gray-800 p-6 rounded-lg shadow-md"
+          >
+            <h3 class="text-2xl font-semibold mb-3 text-green-200">
+              نوع‌بندی پویا (Dynamic Typing): انعطاف‌پذیری با احتمال بروز خطا
+            </h3>
+            <p class="mb-4 text-gray-200">
+              جاوااسکریپت زبانی با <strong>نوع‌بندی پویا</strong> است. این بدان
+              معناست که نیازی به تعریف نوع متغیر در زمان اعلان نیست؛ بلکه نوع
+              متغیر در زمان اجرا و بر اساس مقدار تخصیص داده شده تعیین می‌شود.
+              حتی امکان تغییر نوع یک متغیر در طول اجرای برنامه وجود دارد. این
+              ویژگی انعطاف‌پذیری بالایی را فراهم می‌کند اما در صورت عدم مدیریت
+              دقیق، می‌تواند منجر به خطاهای غیرمنتظره شود.
+            </p>
+            <div class="bg-gray-700 p-4 rounded-md">
+              <pre><code class="language-javascript">let myVariable = 10;
+      console.log(typeof myVariable);
+      
+      myVariable = "Hello";
+      console.log(typeof myVariable);
+      
+      myVariable = true;
+      console.log(typeof myVariable);</code></pre>
+            </div>
+            <p class="mt-4 text-gray-200">
+              <strong>مزایا:</strong> سرعت بالای کدنویسی و انعطاف‌پذیری زیاد.
+            </p>
+            <p class="text-gray-200">
+              <strong>معایب:</strong> احتمال بروز خطاهای زمان اجرا و کاهش
+              خوانایی در پروژه‌های بزرگ. برای رفع این مشکل، زبان
+              <strong>تایپ‌اسکریپت (TypeScript)</strong> معرفی شد که امکان تعریف
+              صریح نوع متغیرها را فراهم می‌سازد.
+            </p>
+          </div>
+
+          <div
+            id="single-threaded"
+            class="tab-content bg-gray-800 p-6 rounded-lg shadow-md"
+          >
+            <h3 class="text-2xl font-semibold mb-3 text-green-200">
+              اجرای تک‌نخی و مدیریت عملیات ناهمگام: راهکار هوشمندانه جاوااسکریپت
+            </h3>
+            <p class="mb-4 text-gray-200">
+              جاوااسکریپت زبانی <strong>تک‌نخی</strong> است؛ یعنی در یک لحظه
+              تنها یک دستور را اجرا می‌کند. اما چگونه است که هنگام دانلود یک
+              فایل بزرگ، مرورگر مسدود نمی‌شود؟ پاسخ در مفهوم
+              <strong>برنامه‌نویسی ناهمگام (Asynchronous Programming)</strong>
+              نهفته است. جاوااسکریپت از یک مدل کارآمد برای مدیریت وظایف زمان‌بر
+              (مانند درخواست‌های شبکه یا دسترسی به فایل) استفاده می‌کند.
+            </p>
+            <div class="event-loop-container my-4">
+              <div class="event-loop-component">Call Stack</div>
+              <div class="event-loop-arrow">⬇️⬆️</div>
+              <div class="flex flex-col md:flex-row gap-4">
+                <div class="event-loop-component">Web APIs</div>
+                <div class="event-loop-component">Event Loop</div>
+              </div>
+              <div class="event-loop-arrow">↙️↘️</div>
+              <div class="flex flex-col md:flex-row gap-4">
+                <div class="event-loop-component">Callback Queue</div>
+                <div class="event-loop-component">Microtask Queue</div>
+              </div>
+            </div>
+            <p class="mt-4 text-gray-200">
+              هنگامی که یک عملیات ناهمگام (مانند `setTimeout`) فراخوانی می‌شود،
+              به Web API منتقل شده و پس از اتمام، تابع بازگشتی (callback) آن به
+              صف Callback (یا Microtask برای Promiseها) اضافه می‌گردد. حلقه
+              رویداد به طور مداوم پشته فراخوانی را بررسی می‌کند؛ در صورت خالی
+              بودن، اولین بازخوانی موجود در صف مناسب را به پشته منتقل می‌کند تا
+              اجرا شود. این مدل همزمانی، جاوااسکریپت را قادر می‌سازد تا
+              برنامه‌های وب تعاملی و سریعی را ایجاد کند، علی‌رغم ماهیت تک‌نخی
+              آن.
+            </p>
+            <p class="mt-4 text-gray-200">
+              برای مدیریت بهتر کدهای ناهمگام، <strong>Promises</strong> و سپس
+              <strong>Async/Await</strong>
+              معرفی شدند که ساختار کدهای ناهمگام را بهبود بخشیده و خوانایی و
+              نگهداری آن‌ها را تسهیل می‌کنند.
+            </p>
+            <div class="bg-gray-700 p-4 rounded-md mt-4">
+              <pre><code class="language-javascript">async function fetchUserData() {
+          try {
+              const response = await fetch('https://api.example.com/users/1');
+              const user = await response.json();
+              console.log(user);
+          } catch (error) {
+              console.error('Error fetching user:', error);
+          }
+      }
+      fetchUserData();</code></pre>
+            </div>
+          </div>
+
+          <div
+            id="first-class-functions"
+            class="tab-content bg-gray-800 p-6 rounded-lg shadow-md"
+          >
+            <h3 class="text-2xl font-semibold mb-3 text-green-200">
+              توابع درجه اول (First-class Functions) و بستارها (Closures):
+              توانایی‌های چندگانه توابع
+            </h3>
+            <p class="mb-4 text-gray-200">
+              در جاوااسکریپت، توابع به عنوان "درجه اول" شناخته می‌شوند. این به
+              آن معناست که می‌توان آن‌ها را مانند سایر مقادیر (اعداد، رشته‌ها)
+              به متغیرها اختصاص داد، به عنوان آرگومان به توابع دیگر ارسال کرد و
+              یا به عنوان مقدار بازگشتی از توابع دیگر دریافت کرد.
+            </p>
+            <div class="bg-gray-700 p-4 rounded-md mb-4">
+              <pre><code class="language-javascript">const sayHello = function() {
+          console.log("Hello!");
+      };
+      sayHello();
+      
+      function executeFunction(func) {
+          func();
+      }
+      executeFunction(sayHello);
+      
+      function createGreeting(name) {
+          return function() {
+              console.log(`Hello, ${name}!`);
+          };
+      }
+      const greetAli = createGreeting("Ali");
+      greetAli();</code></pre>
+            </div>
+            <p class="mb-4 text-gray-200">
+              <strong>بستارها (Closures):</strong> بستارها یک مفهوم قدرتمند در
+              جاوااسکریپت هستند. هنگامی که یک تابع در جاوااسکریپت تعریف می‌شود،
+              به همراه خود "محیط لغوی" (lexical environment) را نیز حفظ می‌کند
+              که شامل تمام متغیرهای موجود در محدوده تعریف آن است. این "بستار" به
+              تابع اجازه می‌دهد تا حتی پس از اتمام اجرای تابع بیرونی (سازنده
+              آن)، به آن متغیرها دسترسی داشته باشد.
+            </p>
+            <div class="bg-gray-700 p-4 rounded-md">
+              <pre><code class="language-javascript">function makeCounter() {
+          let count = 0;
+      
+          return function() {
+              count++;
+              return count;
+          };
+      }
+      
+      const counter1 = makeCounter();
+      console.log(counter1());
+      console.log(counter1());
+      
+      const counter2 = makeCounter();
+      console.log(counter2());</code></pre>
+            </div>
+            <p class="mt-4 text-gray-200">
+              این ویژگی‌ها به جاوااسکریپت انعطاف‌پذیری بالایی در سازماندهی کد و
+              ایجاد الگوهای طراحی پیشرفته می‌بخشند.
+            </p>
+          </div>
+
+          <div
+            id="prototypal-inheritance"
+            class="tab-content bg-gray-800 p-6 rounded-lg shadow-md"
+          >
+            <h3 class="text-2xl font-semibold mb-3 text-green-200">
+              وراثت پروتوتایپی: مکانیزم ارث‌بری در جاوااسکریپت
+            </h3>
+            <p class="mb-4 text-gray-200">
+              برخلاف بسیاری از زبان‌های برنامه‌نویسی شیءگرا که از "کلاس‌ها" برای
+              پیاده‌سازی ارث‌بری استفاده می‌کنند، جاوااسکریپت در هسته خود از یک
+              مدل متفاوت به نام
+              <strong>وراثت پروتوتایپی (Prototypal Inheritance)</strong> بهره
+              می‌برد. در این مدل، هر شیء می‌تواند شیء دیگری را به عنوان
+              "پروتوتایپ" خود داشته باشد. هنگامی که قصد دسترسی به یک ویژگی یا
+              متد در یک شیء را دارید، جاوااسکریپت ابتدا خود شیء را بررسی می‌کند.
+              در صورت عدم یافتن، به پروتوتایپ آن مراجعه کرده و این جستجو تا
+              انتهای زنجیره پروتوتایپ ادامه می‌یابد.
+            </p>
+            <div class="bg-gray-700 p-4 rounded-md mb-4">
+              <pre><code class="language-javascript">const animal = {
+          eats: true,
+          walk() {
+              console.log("Animal walks");
+          }
+      };
+      
+      const rabbit = {
+          jumps: true,
+      };
+      Object.setPrototypeOf(rabbit, animal);
+      
+      rabbit.walk();
+      console.log(rabbit.eats);</code></pre>
+            </div>
+            <p class="mb-4 text-gray-200">
+              با معرفی ES6، کلمه کلیدی `class` به جاوااسکریپت اضافه شد. این
+              `class`ها در واقع یک "شکر نحوی" (Syntactic Sugar) بر روی همان مدل
+              پروتوتایپی هستند. به این معنا که ظاهری شبیه به کلاس‌های سایر
+              زبان‌ها دارند تا کار با آن‌ها برای توسعه‌دهندگان آشناتر باشد، اما
+              در پس زمینه، جاوااسکریپت همچنان بر اساس پروتوتایپ‌ها عمل می‌کند.
+            </p>
+            <div class="bg-gray-700 p-4 rounded-md">
+              <pre><code class="language-javascript">class Animal {
+          constructor(name) {
+              this.name = name;
+          }
+          walk() {
+              console.log(`${this.name} walks`);
+          }
+      }
+      
+      class Rabbit extends Animal {
+          constructor(name) {
+              super(name);
+          }
+          jumps() {
+              console.log(`${this.name} jumps`);
+          }
+      }
+      
+      const rabbit = new Rabbit("Bugs Bunny");
+      rabbit.walk();
+      rabbit.jumps();</code></pre>
+            </div>
+            <p class="mt-4 text-gray-200">
+              اینکه کلاس‌ها در جاوااسکریپت صرفاً لایه‌ای بر روی پروتوتایپ‌ها
+              هستند، نشان‌دهنده رویکرد عمل‌گرایانه جاوااسکریپت است؛ تلاش برای
+              تسهیل کار توسعه‌دهندگان با ارائه ساختارهای نحوی آشنا، بدون تغییر
+              در مکانیسم اصلی آن.
+            </p>
+          </div>
+        </section>
+
+        <section id="modern" class="content-section">
+          <h2 class="text-3xl font-bold mb-6 text-teal-200">
+            قدرت مدرن: ویژگی‌های ECMAScript و JSON
+          </h2>
+          <p class="mb-8 text-lg leading-relaxed text-gray-200">
+            از سال ۲۰۱۵ و با انتشار ES6 (ECMAScript 2015)، جاوااسکریپت یک جهش
+            بزرگ داشت و هر سال هم با نسخه‌های جدیدتر، بهتر و بهتر می‌شود. این
+            ویژگی‌ها، کدنویسی را خیلی راحت‌تر، تمیزتر و لذت‌بخش‌تر کرده‌اند.
+            همچنین، JSON به عنوان فرمت استاندارد تبادل داده، نقشی حیاتی در
+            اکوسیستم وب ایفا می‌کند. این بخش به بررسی این نوآوری‌های کلیدی
+            می‌پردازد.
+          </p>
+          <div id="esFeaturesContainer" class="space-y-4"></div>
+
+          <div class="grid md:grid-cols-2 gap-4 hidden">
+            <div class="bg-gray-800 p-4 rounded-md shadow-md">
+              <textarea
+                id="jsonStringifyInput"
+                rows="3"
+                class="w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-100 focus:ring-blue-500 focus:border-blue-500"
+                placeholder='{ "name": "کتاب", "price": 25000 }'
+              ></textarea>
+              <button
+                id="stringifyBtn"
+                class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200"
+              >
+                تبدیل به JSON
+              </button>
+              <pre
+                id="stringifyOutput"
+                class="mt-2 bg-gray-700 p-2 rounded border border-gray-600 min-h-[50px] text-gray-200 overflow-auto"
+              ></pre>
+            </div>
+            <div class="bg-gray-800 p-4 rounded-md shadow-md">
+              <label
+                for="jsonParseInput"
+                class="block mb-2 font-medium text-gray-200"
+                >رشته JSON به شیء جاوااسکریپت:</label
+              >
+              <textarea
+                id="jsonParseInput"
+                rows="3"
+                class="w-full p-2 border border-gray-600 rounded-md bg-gray-700 text-gray-100 focus:ring-blue-500 focus:border-blue-500"
+                placeholder='{ "name": "کتاب", "price": 25000 }'
+              ></textarea>
+              <button
+                id="parseBtn"
+                class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200"
+              >
+                تجزیه JSON
+              </button>
+              <pre
+                id="parseOutput"
+                class="mt-2 bg-gray-700 p-2 rounded border border-gray-600 min-h-[50px] text-gray-200 overflow-auto"
+              ></pre>
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="ecosystem"
+          class="content-section py-16 px-6 bg-gray-900 text-gray-100"
+        >
+          <h2 class="text-4xl font-extrabold mb-6 text-teal-300">
+            جاوااسکریپت در همه‌جا ✨ از مرورگر تا سرور و فراتر
+          </h2>
+
+          <p class="mb-10 text-lg leading-loose text-gray-300">
+            جاوااسکریپت دیگه فقط یه زبان برای جلوه‌های وب نیست! الان با این زبان
+            می‌تونی هم سایت بسازی، هم سرور راه بندازی، اپلیکیشن موبایل و دسکتاپ
+            درست کنی و حتی وارد حوزه‌هایی مثل هوش مصنوعی و اینترنت اشیا بشی.
+            خلاصه اینکه جاوااسکریپت واقعاً یه زبان همه‌فن‌حریف شده!
+          </p>
+
+          <h3 class="text-2xl font-semibold mb-4 text-green-300">
+            کجاها از جاوااسکریپت استفاده می‌شه؟
+          </h3>
+
+          <div
+            class="chart-container bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-lg"
+          >
+            <canvas id="applicationsChart" class="w-full h-64"></canvas>
+          </div>
+
+          <div class="mt-12">
+            <h3 class="text-2xl font-semibold mb-4 text-green-300">
+              اکوسیستم پویا و جامعه پرانرژی 💪
+            </h3>
+            <p class="mb-6 text-gray-300">
+              محبوبیت جاوااسکریپت فقط به خودش مربوط نمی‌شه! یه اکوسیستم قوی و
+              جامعه‌ی پرجنب‌وجوش از توسعه‌دهنده‌ها پشتشه که باعث شده همیشه در
+              حال رشد و نوآوری باشه.
+            </p>
+
+            <ul class="list-disc list-inside space-y-3 text-gray-200 pl-2">
+              <li>
+                <strong class="text-teal-300">npm و Yarn:</strong> ابزارهای
+                مدیریت پکیج که بهت اجازه می‌دن میلیون‌ها ماژول آماده رو نصب و
+                استفاده کنی.
+              </li>
+              <li>
+                <strong class="text-teal-300">Node.js:</strong> محیط اجرای کدهای
+                جاوااسکریپت در سمت سرور.
+              </li>
+              <li>
+                <strong class="text-teal-300">فریمورک‌های رابط کاربری:</strong>
+                React، Vue و Angular برای ساختن UI‌های تعاملی.
+              </li>
+              <li>
+                <strong class="text-teal-300">Express.js:</strong> فریمورک سبک و
+                محبوب برای ساخت API و اپلیکیشن‌های سرور.
+              </li>
+              <li>
+                <strong class="text-teal-300">Babel:</strong> تبدیل‌کننده کدهای
+                مدرن به نسخه‌های قدیمی‌تر مرورگرها.
+              </li>
+              <li>
+                <strong class="text-teal-300">Webpack و Vite:</strong> ابزارهای
+                باندل و مدیریت وابستگی‌ها برای پروژه‌های حرفه‌ای.
+              </li>
+              <li>
+                <strong class="text-teal-300">جامعه توسعه‌دهنده‌ها:</strong> یکی
+                از بزرگ‌ترین جوامع دنیا با منابع آموزشی، پروژه‌های متن‌باز و
+                پشتیبانی فوق‌العاده.
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="critique" class="content-section">
+          <h2 class="text-3xl font-bold mb-6 text-teal-200">
+            نقاط قوت، چالش‌ها و مسیر پیش رو JavaScript :
+          </h2>
+          <p class="mb-8 text-lg leading-relaxed text-gray-200">
+            هیچ زبان برنامه‌نویسی بی‌نقص نیست و جاوااسکریپت نیز از این قاعده
+            مستثنی نیست. در این بخش، نگاهی واقع‌بینانه خواهیم داشت به مزایا و
+            معایب آن و بررسی خواهیم کرد تلاش‌های صورت گرفته برای غلبه بر
+            چالش‌های پیش رو.
+          </p>
+          <div class="grid md:grid-cols-1 gap-6">
+            <div class="bg-gray-800 p-6 rounded-lg shadow-md">
+              <h3 class="text-xl font-semibold mb-3 text-green-400">
+                مزایای کلیدی: دلایل محبوبیت فزاینده جاوااسکریپت
+              </h3>
+              <ul class="list-disc list-inside space-y-1 text-gray-200">
+                <li>
+                  <strong>انعطاف‌پذیری منحصربه‌فرد:</strong> امکان پیاده‌سازی
+                  الگوهای برنامه‌نویسی متنوع از جمله شیءگرا، تابعی و امری.
+                </li>
+                <li>
+                  <strong>اکوسیستم گسترده:</strong> وجود تعداد بی‌شماری از
+                  کتابخانه‌ها و فریمورک‌ها برای تسهیل و تسریع توسعه در زمینه‌های
+                  مختلف.
+                </li>
+                <li>
+                  <strong>توسعه فول‌استک یکپارچه:</strong> قابلیت استفاده از یک
+                  زبان واحد برای توسعه فرانت‌اند و بک‌اند برنامه‌های وب.
+                </li>
+                <li>
+                  <strong>سهولت یادگیری برای مبتدیان:</strong> فرآیند شروع به
+                  کار و یادگیری مفاهیم پایه جاوااسکریپت نسبتاً آسان است.
+                </li>
+                <li>
+                  <strong>عملکرد بالا:</strong> بهبود چشمگیر سرعت اجرای کد به
+                  لطف پیشرفت‌های موتورهای جاوااسکریپت مانند V8.
+                </li>
+                <li>
+                  <strong>مدیریت کارآمد عملیات ناهمگام:</strong> استفاده از
+                  Event Loop و سازوکارهای Promises و Async/Await برای جلوگیری از
+                  مسدود شدن برنامه و حفظ پاسخگویی.
+                </li>
+              </ul>
+            </div>
+            <div class="bg-gray-800 p-6 rounded-lg shadow-md">
+              <h3 class="text-xl font-semibold mb-3 text-red-400">
+                معایب و انتقادات: چالش‌های پیش روی جاوااسکریپت در گذشته
+              </h3>
+              <ul class="list-disc list-inside space-y-1 text-gray-200">
+                <li>
+                  <strong>رفتارهای غیرمنتظره (Quirks):</strong> برخی ویژگی‌های
+                  رفتاری مانند تبدیل نوع داده‌ها و مفهوم `this` می‌توانستند
+                  گیج‌کننده باشند.
+                </li>
+                <li>
+                  <strong>محدودیت‌های مقیاس‌پذیری (در نسخه‌های اولیه):</strong>
+                  مدیریت پروژه‌های بزرگ قبل از ظهور ویژگی‌های مدرن و ابزارهایی
+                  مانند تایپ‌اسکریپت دشوار بود.
+                </li>
+                <li>
+                  <strong>پیچیدگی توابع تودرتو (Callback Hell):</strong> استفاده
+                  بیش از حد از توابع Callback منجر به کدهای پیچیده و غیرقابل
+                  نگهداری می‌شد.
+                </li>
+                <li>
+                  <strong>مسائل امنیتی در سمت کلاینت:</strong> ماهیت اجرایی کد
+                  در مرورگر و قابلیت مشاهده آن، همواره نگرانی‌های امنیتی را به
+                  همراه داشته است.
+                </li>
+                <li>
+                  <strong>عدم سازگاری مرورگرها (در گذشته):</strong> تفاوت در
+                  نحوه پیاده‌سازی جاوااسکریپت در مرورگرهای مختلف، مشکلات سازگاری
+                  ایجاد می‌کرد.
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="mt-8 bg-gray-800 p-6 rounded-lg shadow-md">
+            <h3 class="text-2xl font-semibold mb-4 text-green-200">
+              تلاش برای بهبود و چشم‌انداز آینده: سیر تحول جاوااسکریپت
+            </h3>
+            <p class="mb-2 text-gray-200">
+              جامعه فعال جاوااسکریپت و کمیته فنی TC39 به طور مستمر در جهت ارتقاء
+              و بهبود این زبان در تلاش هستند.
+            </p>
+            <ul class="list-disc list-inside space-y-2 text-gray-200">
+              <li>
+                <strong>نسخه‌های جدید ECMAScript:</strong> انتشار سالانه
+                استانداردهای ECMAScript ویژگی‌های نوینی را به این زبان اضافه
+                کرده است که بسیاری از مشکلات پیشین را مرتفع ساخته‌اند (مانند
+                Promises، Async/Await، `let`/`const`، Modules).
+              </li>
+              <li>
+                <strong>TypeScript:</strong> یک سوپرست از جاوااسکریپت با قابلیت
+                افزودن نوع‌بندی ایستا که به طور قابل توجهی به بهبود مقیاس‌پذیری
+                و نگهداری پروژه‌های بزرگ کمک کرده است.
+              </li>
+              <li>
+                <strong>WebAssembly (Wasm):</strong> یک فرمت باینری جدید که
+                امکان اجرای کدهای نوشته شده به زبان‌های دیگر (مانند C++ و Rust)
+                را با سرعت نزدیک به زبان ماشین در مرورگر فراهم می‌کند و مکمل
+                جاوااسکریپت برای وظایف محاسباتی سنگین است.
+              </li>
+              <li>
+                <strong>برنامه‌های کاربردی وب پیشرفته (PWAs):</strong> با
+                بهره‌گیری از Service Workerها (نوشته شده با جاوااسکریپت)،
+                تجربه‌ای مشابه اپلیکیشن‌های بومی را در محیط وب ارائه می‌دهند
+                (قابلیت کار آفلاین، دریافت اعلانات، نصب روی دستگاه).
+              </li>
+              <li>
+                <strong>هوش مصنوعی و یادگیری ماشین:</strong> با ظهور
+                کتابخانه‌هایی مانند TensorFlow.js، جاوااسکریپت به طور جدی وارد
+                عرصه هوش مصنوعی و یادگیری ماشین شده است.
+              </li>
+            </ul>
+            <p class="mt-4 text-gray-200">
+              جاوااسکریپت با تکیه بر نوآوری‌های مستمر، همچنان به تکامل خود ادامه
+              می‌دهد و نقش محوری خود را در آینده توسعه وب و نرم‌افزار حفظ خواهد
+              کرد.
+            </p>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+      const navLinks = document.querySelectorAll(".nav-link");
+      const contentSections = document.querySelectorAll(".content-section");
+      const menuToggle = document.getElementById("menu-toggle");
+      const sidebar = document.getElementById("sidebar");
+
+      function setActiveSection(hash) {
+        contentSections.forEach((section) => {
+          if (`#${section.id}` === hash) {
+            section.classList.add("active");
+          } else {
+            section.classList.remove("active");
+          }
+        });
+        navLinks.forEach((link) => {
+          if (link.getAttribute("href") === hash) {
+            link.classList.add("bg-blue-500", "text-blue-50");
+          } else {
+            link.classList.remove("bg-blue-500", "text-blue-50");
+          }
+        });
+        // Close sidebar on mobile after selection
+        if (
+          window.innerWidth < 768 &&
+          !sidebar.classList.contains("-translate-x-full")
+        ) {
+          sidebar.classList.add("-translate-x-full");
+        }
+      }
+
+      navLinks.forEach((link) => {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+          const targetId = link.getAttribute("href");
+          window.location.hash = targetId;
+          setActiveSection(targetId);
+        });
+      });
+
+      menuToggle.addEventListener("click", () => {
+        sidebar.classList.toggle("-translate-x-full");
+      });
+
+      window.addEventListener("hashchange", () => {
+        const hash = window.location.hash || "#introduction";
+        setActiveSection(hash);
+      });
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const hash = window.location.hash || "#introduction";
+        setActiveSection(hash);
+        renderTimeline();
+        renderESFeatures();
+        setupJsonTools();
+        renderApplicationsChart();
+        setupArchitectureTabs();
+        hljs.highlightAll(); // Initialize syntax highlighting
+        setupGeminiFeatures(); // Setup the new Gemini API features
+      });
+
+      function renderTimeline() {
+        const timelineContainer = document.getElementById("timelineContainer");
+        timelineContainer.innerHTML = ""; // Clear existing content
+        const events = [
+          {
+            year: "۱۹۹۵ (می)",
+            title: "Mocha متولد می‌شود",
+            description:
+              "برندن ایچ در نت‌اسکیپ طی ۱۰ روز زبان Mocha را ایجاد می‌کند. هدف اصلی این بود که زبان جدید، از نظر ظاهری شبیه به زبان محبوب جاوا باشد.",
+          },
+          {
+            year: "۱۹۹۵ (سپتامبر)",
+            title: "LiveScript",
+            description: "نام Mocha به LiveScript تغییر می‌کند.",
+          },
+          {
+            year: "۱۹۹۵ (دسامبر)",
+            title: "JavaScript",
+            description:
+              "با همکاری Sun Microsystems، نام نهایی آن به JavaScript تغییر می‌کند تا از محبوبیت جاوا بهره ببرد. این تغییر نام، اگرچه در ابتدا به جاوااسکریپت کمک کرد تا سریع‌تر شناخته شود، اما بعدها باعث سردرگمی‌های زیادی در مورد تفاوت این دو زبان شد.",
+          },
+          {
+            year: "۱۹۹۶",
+            title: "JScript مایکروسافت",
+            description:
+              "مایکروسافت JScript را به عنوان رقیب در Internet Explorer منتشر می‌کند؛ آغاز جنگ مرورگرها و چالش ناسازگاری برای توسعه‌دهندگان.",
+          },
+          {
+            year: "۱۹۹۷ (ژوئن)",
+            title: "ECMAScript 1 (ES1)",
+            description:
+              "اولین نسخه استاندارد ECMAScript توسط ECMA International منتشر می‌شود. این استانداردسازی برای حل آشفتگی و ایجاد یک زبان واحد که همه مرورگرها از آن پشتیبانی کنند، حیاتی بود.",
+          },
+          {
+            year: "۱۹۹۹ (دسامبر)",
+            title: "ECMAScript 3 (ES3)",
+            description:
+              "شامل عبارات باقاعده، try/catch و بهبودهای دیگر. این نسخه برای سال‌ها، پایه و اساس جاوااسکریپت بود.",
+          },
+          {
+            year: "۲۰۰۸",
+            title: "موتور V8 گوگل",
+            description:
+              "گوگل کروم با موتور V8 منتشر می‌شود که سرعت اجرای جاوااسکریپت را به شدت بهبود می‌بخشد و آن را از یک زبان نسبتاً کند، به یک زبان با عملکرد بالا تبدیل می‌کند. این پیشرفت، زمینه را برای گسترش جاوااسکریپت به خارج از مرورگرها فراهم آورد.",
+          },
+          {
+            year: "۲۰۰۹",
+            title: "Node.js و ES5",
+            description:
+              "Node.js توسط رایان دال معرفی می‌شود و جاوااسکریپت را به سمت سرور می‌آورد و آن را به یک زبان فول‌استک تبدیل می‌کند. ECMAScript 5 با strict mode و پشتیبانی داخلی از JSON منتشر می‌شود.",
+          },
+          {
+            year: "۲۰۱۵ (ژوئن)",
+            title: "ECMAScript 2015 (ES6)",
+            description:
+              "بزرگترین به‌روزرسانی تاریخ جاوااسکریپت با ویژگی‌هایی مانند کلاس‌ها، ماژول‌ها، توابع پیکانی، Promises، let/const. این نسخه، جاوااسکریپت را به یک زبان مدرن‌تر و قدرتمندتر تبدیل کرد.",
+          },
+          {
+            year: "۲۰۱۶ به بعد",
+            title: "انتشار سالانه ECMAScript",
+            description:
+              "TC39 به مدل انتشار سالانه روی می‌آورد (ES2016, ES2017 با Async/Await، و غیره). این رویکرد 'همیشه سبز' باعث می‌شود جاوااسکریپت همیشه به‌روز بماند و به سرعت به نیازهای توسعه‌دهندگان پاسخ دهد.",
+          },
+        ];
+
+        events.forEach((event) => {
+          const item = document.createElement("div");
+          item.className = "timeline-item bg-gray-800 p-4 rounded-md shadow-md";
+          item.innerHTML = `
+                    <h3 class="text-xl font-semibold text-teal-200 mb-1">${event.title} - ${event.year}</h3>
+                    <p class="text-gray-200">${event.description}</p>
+                `;
+          timelineContainer.appendChild(item);
+        });
+      }
+
+      function renderESFeatures() {
+        const container = document.getElementById("esFeaturesContainer");
+        container.innerHTML = ""; // Clear existing content
+        const features = [
+          {
+            name: "let و const",
+            description:
+              "جایگزین‌های هوشمندتر برای `var`. این‌ها به شما کنترل دقیق‌تری روی متغیرها می‌دهند و جلوی بسیاری از خطاهای رایج را می‌گیرند.",
+            example:
+              "const PI = 3.14;\nlet radius = 5;\nif (radius > 0) {\n  let area = PI * radius * radius;\n  console.log(area);\n}",
+          },
+          {
+            name: "توابع پیکانی (Arrow Functions)",
+            description:
+              "سینتکس کوتاه‌تر و تمیزتر برای نوشتن توابع. به خصوص برای توابع کوچک و Callbacks عالی هستند.",
+            example: "const add = (a, b) => a + b;\nconsole.log(add(2, 3));",
+          },
+          {
+            name: "کلاس‌ها (Classes)",
+            description:
+              "سینتکس آشناتر و تمیزتر برای برنامه‌نویسی شیءگرا، بر پایه وراثت پروتوتایپی. این‌ها فقط یک 'شکر سینتکسی' روی همان مدل پروتوتایپی هستند.",
+            example:
+              "class Rectangle {\n  constructor(h, w) { this.height = h; this.width = w; }\n  area() { return this.height * this.width; }\n}\nconst r = new Rectangle(10, 5);\nconsole.log(r.area());",
+          },
+          {
+            name: "ماژول‌ها (Modules)",
+            description:
+              "سیستم ماژول بومی جاوااسکریپت که به شما اجازه می‌دهد کدتان را به فایل‌های کوچک‌تر و قابل استفاده مجدد تقسیم کنید و آن‌ها را به راحتی بین فایل‌ها به اشتراک بگذارید. این کار باعث می‌شود پروژه‌های بزرگ، منظم‌تر و قابل مدیریت‌تر شوند.",
+            example:
+              "export const PI = 3.14;\nimport { PI } from './math.js';\nconsole.log(PI);",
+          },
+          {
+            name: "Promises و Async/Await",
+            description:
+              "روش‌های فوق‌العاده‌ای برای مدیریت کارهای ناهمگام و جلوگیری از 'Callback Hell'. با Async/Await می‌توانید کدهای ناهمگام را طوری بنویسید که انگار همگام هستند و خط به خط اجرا می‌شوند، که خوانایی کد را به شدت بالا می‌برد.",
+            example:
+              "async function fetchData() {\n  try {\n    const response = await fetch('https://api.example.com/data');\n    const data = await response.json();\n    console.log(data);\n  } catch (error) {\n    console.error('Error:', error);\n  }\n}\nfetchData();",
+          },
+          {
+            name: "Destructuring Assignment",
+            description:
+              "روشی سریع و مختصر برای استخراج مقادیر از آرایه‌ها یا اشیاء به متغیرهای مجزا.",
+            example:
+              "const person = { name: 'Ali', age: 30 };\nconst { name, age } = person;\nconsole.log(name);",
+          },
+          {
+            name: "Template Literals",
+            description:
+              "روشی آسان‌تر برای ساخت رشته‌های چندخطی و قرار دادن متغیرها در داخل رشته با استفاده از بک‌تیک (`` ` ``).",
+            example:
+              "const userName = 'Maryam';\nconst greeting = `Hello, ${userName}!\nWelcome to our website.`;\nconsole.log(greeting);",
+          },
+          {
+            name: "Optional Chaining (`?.`)",
+            description:
+              "برای دسترسی ایمن به ویژگی‌های تو در تو در اشیاء، بدون اینکه نگران خطای `null` یا `undefined` باشید.",
+            example:
+              "const user = { profile: { name: 'Reza' } };\nconsole.log(user.profile?.name);\nconsole.log(user.address?.street);",
+          },
+        ];
+
+        features.forEach((feature) => {
+          const div = document.createElement("div");
+          div.className = "bg-gray-800 p-4 rounded-md shadow-md";
+          div.innerHTML = `
+                    <details>
+                        <summary class="text-lg font-semibold text-teal-200 cursor-pointer">${feature.name}</summary>
+                        <p class="mt-2 text-gray-200">${feature.description}</p>
+                        <div class="bg-gray-700 text-gray-100 p-3 rounded-md mt-2 overflow-x-auto">
+                            <pre><code class="language-javascript">${feature.example}</code></pre>
+                        </div>
+                    </details>
+                `;
+          container.appendChild(div);
+        });
+      }
+
+      function setupJsonTools() {
+        const stringifyInput = document.getElementById("jsonStringifyInput");
+        const stringifyBtn = document.getElementById("stringifyBtn");
+        const stringifyOutput = document.getElementById("stringifyOutput");
+        const parseInput = document.getElementById("jsonParseInput");
+        const parseBtn = document.getElementById("parseBtn");
+        const parseOutput = document.getElementById("parseOutput");
+
+        stringifyBtn.addEventListener("click", () => {
+          try {
+            const obj = eval(`(${stringifyInput.value || "{}"})`);
+            stringifyOutput.textContent = JSON.stringify(obj, null, 2);
+          } catch (e) {
+            stringifyOutput.textContent = `خطا: ${e.message}`;
+          }
+        });
+
+        parseBtn.addEventListener("click", () => {
+          try {
+            const obj = JSON.parse(parseInput.value || "{}");
+            parseOutput.textContent = JSON.stringify(obj, null, 2); // نمایش شیء تجزیه شده به صورت رشته برای بررسی
+          } catch (e) {
+            parseOutput.textContent = `خطا: ${e.message}`;
+          }
+        });
+      }
+
+      function renderApplicationsChart() {
+        const ctx = document
+          .getElementById("applicationsChart")
+          .getContext("2d");
+
+        const gradientBlue = ctx.createLinearGradient(0, 0, 600, 0);
+        gradientBlue.addColorStop(0, "rgba(59, 130, 246, 0.8)");
+        gradientBlue.addColorStop(1, "rgba(96, 165, 250, 0.8)");
+
+        const data = {
+          labels: [
+            "توسعه فرانت‌اند",
+            "توسعه بک‌اند (Node.js)",
+            "توسعه موبایل (React Native)",
+            "توسعه دسکتاپ (Electron)",
+            "یادگیری ماشین (TensorFlow.js)",
+            "بازی‌سازی",
+          ],
+          datasets: [
+            {
+              label: "میزان کاربرد (درصد)",
+              data: [95, 70, 60, 40, 30, 25],
+              backgroundColor: [
+                gradientBlue,
+                "rgba(34, 197, 94, 0.7)",
+                "rgba(249, 115, 22, 0.7)",
+                "rgba(168, 85, 247, 0.7)",
+                "rgba(6, 182, 212, 0.7)",
+                "rgba(236, 72, 153, 0.7)",
+              ],
+              borderRadius: 8,
+              barThickness: 20,
+              borderWidth: 0,
+            },
+          ],
+        };
+
+        new Chart(ctx, {
+          type: "bar",
+          data: data,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: "y",
+            layout: {
+              padding: 20,
+            },
+            scales: {
+              x: {
+                beginAtZero: true,
+                ticks: {
+                  color: "#e5e7eb",
+                  font: { size: 14, family: "Vazirmatn" },
+                },
+                grid: {
+                  color: "rgba(255,255,255,0.1)",
+                  borderDash: [4, 4],
+                },
+              },
+              y: {
+                ticks: {
+                  color: "#f3f4f6",
+                  font: { size: 14, family: "Vazirmatn" },
+                },
+                grid: {
+                  display: false,
+                },
+              },
+            },
+            plugins: {
+              legend: { display: false },
+              title: {
+                display: true,
+                text: "📊 گستره کاربردهای جاوااسکریپت",
+                color: "#f3f4f6",
+                font: {
+                  size: 18,
+                  weight: "bold",
+                  family: "Vazirmatn",
+                },
+                padding: { bottom: 20 },
+              },
+              tooltip: {
+                backgroundColor: "#1f2937", // gray-800
+                titleColor: "#fff",
+                bodyColor: "#d1d5db", // gray-300
+                cornerRadius: 6,
+                borderColor: "#4b5563", // gray-600
+                borderWidth: 1,
+                callbacks: {
+                  label: (context) => {
+                    return `${context.label}: ${context.parsed.x}%`;
+                  },
+                },
+              },
+            },
+            animation: {
+              duration: 1200,
+              easing: "easeOutQuart",
+            },
+          },
+        });
+      }
+
+      function setupArchitectureTabs() {
+        const tabButtons = document.querySelectorAll(
+          "#architecture .tab-button"
+        );
+        const tabContents = document.querySelectorAll(
+          "#architecture .tab-content"
+        );
+
+        tabButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            const targetTab = button.dataset.tab;
+
+            tabButtons.forEach((btn) => {
+              btn.classList.remove("border-blue-500", "text-yellow-100");
+              btn.classList.add(
+                "border-transparent",
+                "text-gray-300",
+                "hover:text-yellow-100"
+              );
+            });
+            button.classList.add("border-blue-500", "text-yellow-100");
+            button.classList.remove(
+              "border-transparent",
+              "text-gray-300",
+              "hover:text-yellow-100"
+            );
+
+            tabContents.forEach((content) => {
+              content.classList.remove("active");
+            });
+
+            const targetContent = document.getElementById(targetTab);
+            if (targetContent) {
+              targetContent.classList.add("active");
+            }
+          });
+        });
+
+        // نمایش تب فعال اولیه در بارگذاری صفحه (اختیاری)
+        const initialActiveButton = document.querySelector(
+          "#architecture .tab-button.active"
+        );
+        if (initialActiveButton) {
+          const initialTargetTab = initialActiveButton.dataset.tab;
+          const initialTargetContent =
+            document.getElementById(initialTargetTab);
+          if (initialTargetContent) {
+            initialTargetContent.classList.add("active");
+          }
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", setupArchitectureTabs);
+    </script>
+  </body>
+</html>
